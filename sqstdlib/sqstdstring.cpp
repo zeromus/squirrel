@@ -99,9 +99,11 @@ SQRESULT sqstd_format(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen
             SQFloat tf = 0;
             switch(format[n]) {
             case 's':
-                if(SQ_FAILED(sq_getstring(v,nparam,&ts)))
+                if(SQ_FAILED(sq_tostring(v,nparam)))
                     return sq_throwerror(v,_SC("string expected for the specified format"));
-                addlen = (sq_getsize(v,nparam)*sizeof(SQChar))+((w+1)*sizeof(SQChar));
+                SQInteger size;
+                sq_getstringandsize(v,nparam+1,&ts,&size);
+                addlen = (size*sizeof(SQChar))+((w+1)*sizeof(SQChar));
                 valtype = 's';
                 break;
             case 'i': case 'd': case 'o': case 'u':  case 'x':  case 'X':
