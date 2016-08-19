@@ -40,6 +40,16 @@ extern "C" {
 #endif
 #endif
 
+//if we're not 64bit, we cannot have possibly refused 64bit 
+#if !defined(_SQ64)
+#undef _SQ_NO_64
+#endif
+
+//if we actually refused 64bit, remove _SQ64 which controls the bulk of the logic
+#if defined(_SQ_NO_64)
+#undef _SQ64
+#endif
+
 
 #define SQTrue  (1)
 #define SQFalse (0)

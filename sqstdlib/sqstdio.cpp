@@ -6,6 +6,7 @@
 #include "sqstdstream.h"
 
 #define SQSTD_FILE_TYPE_TAG (SQSTD_STREAM_TYPE_TAG | 0x00000001)
+
 //basic API
 SQFILE sqstd_fopen(const SQChar *filename ,const SQChar *mode)
 {
@@ -154,7 +155,7 @@ static SQInteger _file_constructor(HSQUIRRELVM v)
 static SQInteger _file_close(HSQUIRRELVM v)
 {
     SQFile *self = NULL;
-    if(SQ_SUCCEEDED(sq_getinstanceup(v,1,(SQUserPointer*)&self,(SQUserPointer)SQSTD_FILE_TYPE_TAG))
+    if(SQ_SUCCEEDED(sq_getinstanceup(v,1,(SQUserPointer*)&self,SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_FILE_TYPE_TAG)))
         && self != NULL)
     {
         self->Close();
@@ -200,7 +201,7 @@ SQRESULT sqstd_createfile(HSQUIRRELVM v, SQFILE file,SQBool own)
 SQRESULT sqstd_getfile(HSQUIRRELVM v, SQInteger idx, SQFILE *file)
 {
     SQFile *fileobj = NULL;
-    if(SQ_SUCCEEDED(sq_getinstanceup(v,idx,(SQUserPointer*)&fileobj,(SQUserPointer)SQSTD_FILE_TYPE_TAG))) {
+    if(SQ_SUCCEEDED(sq_getinstanceup(v,idx,(SQUserPointer*)&fileobj,SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_FILE_TYPE_TAG)))) {
         *file = fileobj->GetHandle();
         return SQ_OK;
     }
@@ -474,7 +475,7 @@ SQRESULT sqstd_register_iolib(HSQUIRRELVM v)
 {
     SQInteger top = sq_gettop(v);
     //create delegate
-    declare_stream(v,_SC("file"),(SQUserPointer)SQSTD_FILE_TYPE_TAG,_SC("std_file"),_file_methods,iolib_funcs);
+    declare_stream(v,_SC("file"),SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_FILE_TYPE_TAG),_SC("std_file"),_file_methods,iolib_funcs);
     sq_pushstring(v,_SC("stdout"),-1);
     sqstd_createfile(v,stdout,SQFalse);
     sq_newslot(v,-3,SQFalse);

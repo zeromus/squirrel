@@ -14,7 +14,7 @@
 
 #define SETUP_BLOB(v) \
     SQBlob *self = NULL; \
-    { if(SQ_FAILED(sq_getinstanceup(v,1,(SQUserPointer*)&self,(SQUserPointer)SQSTD_BLOB_TYPE_TAG))) \
+    { if(SQ_FAILED(sq_getinstanceup(v,1,(SQUserPointer*)&self,SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_BLOB_TYPE_TAG)))) \
         return sq_throwerror(v,_SC("invalid type tag"));  } \
     if(!self || !self->IsValid())  \
         return sq_throwerror(v,_SC("the blob is invalid"));
@@ -146,7 +146,7 @@ static SQInteger _blob__cloned(HSQUIRRELVM v)
 {
     SQBlob *other = NULL;
     {
-        if(SQ_FAILED(sq_getinstanceup(v,2,(SQUserPointer*)&other,(SQUserPointer)SQSTD_BLOB_TYPE_TAG)))
+        if(SQ_FAILED(sq_getinstanceup(v,2,(SQUserPointer*)&other,SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_BLOB_TYPE_TAG))))
             return SQ_ERROR;
     }
     //SQBlob *thisone = new SQBlob(other->Len());
@@ -236,7 +236,7 @@ static const SQRegFunction bloblib_funcs[]={
 SQRESULT sqstd_getblob(HSQUIRRELVM v,SQInteger idx,SQUserPointer *ptr)
 {
     SQBlob *blob;
-    if(SQ_FAILED(sq_getinstanceup(v,idx,(SQUserPointer *)&blob,(SQUserPointer)SQSTD_BLOB_TYPE_TAG)))
+    if(SQ_FAILED(sq_getinstanceup(v,idx,(SQUserPointer *)&blob,SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_BLOB_TYPE_TAG))))
         return -1;
     *ptr = blob->GetBuf();
     return SQ_OK;
@@ -245,7 +245,7 @@ SQRESULT sqstd_getblob(HSQUIRRELVM v,SQInteger idx,SQUserPointer *ptr)
 SQInteger sqstd_getblobsize(HSQUIRRELVM v,SQInteger idx)
 {
     SQBlob *blob;
-    if(SQ_FAILED(sq_getinstanceup(v,idx,(SQUserPointer *)&blob,(SQUserPointer)SQSTD_BLOB_TYPE_TAG)))
+    if(SQ_FAILED(sq_getinstanceup(v,idx,(SQUserPointer *)&blob,SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_BLOB_TYPE_TAG))))
         return -1;
     return blob->Len();
 }
@@ -261,7 +261,7 @@ SQUserPointer sqstd_createblob(HSQUIRRELVM v, SQInteger size)
         sq_pushinteger(v,size); //size
         SQBlob *blob = NULL;
         if(SQ_SUCCEEDED(sq_call(v,2,SQTrue,SQFalse))
-            && SQ_SUCCEEDED(sq_getinstanceup(v,-1,(SQUserPointer *)&blob,(SQUserPointer)SQSTD_BLOB_TYPE_TAG))) {
+            && SQ_SUCCEEDED(sq_getinstanceup(v,-1,(SQUserPointer *)&blob,SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_BLOB_TYPE_TAG)))) {
             sq_remove(v,-2);
             return blob->GetBuf();
         }
@@ -272,6 +272,6 @@ SQUserPointer sqstd_createblob(HSQUIRRELVM v, SQInteger size)
 
 SQRESULT sqstd_register_bloblib(HSQUIRRELVM v)
 {
-    return declare_stream(v,_SC("blob"),(SQUserPointer)SQSTD_BLOB_TYPE_TAG,_SC("std_blob"),_blob_methods,bloblib_funcs);
+    return declare_stream(v,_SC("blob"),SQ_TYPE_TAG_AS_USER_POINTER(SQSTD_BLOB_TYPE_TAG),_SC("std_blob"),_blob_methods,bloblib_funcs);
 }
 

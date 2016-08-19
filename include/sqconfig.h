@@ -1,42 +1,52 @@
-
-#ifdef _SQ64
-
 #ifdef _MSC_VER
-typedef __int64 SQInteger;
-typedef unsigned __int64 SQUnsignedInteger;
-typedef unsigned __int64 SQHash; /*should be the same size of a pointer*/
+typedef unsigned __int8 SQByte;
+typedef __int16 SQInt16;
+typedef __int32 SQInt32;
+typedef __int64 SQInt64;
+typedef unsigned __int32 SQUInt32;
+typedef unsigned __int64 SQUInt64;
 #else
-typedef long long SQInteger;
-typedef unsigned long long SQUnsignedInteger;
-typedef unsigned long long SQHash; /*should be the same size of a pointer*/
-#endif
-typedef int SQInt32;
-typedef unsigned int SQUnsignedInteger32;
-#else
-typedef int SQInteger;
-typedef int SQInt32; /*must be 32 bits(also on 64bits processors)*/
-typedef unsigned int SQUnsignedInteger32; /*must be 32 bits(also on 64bits processors)*/
-typedef unsigned int SQUnsignedInteger;
-typedef unsigned int SQHash; /*should be the same size of a pointer*/
+#include <stdint.h>
+typedef uint8_t SQByte;
+typedef int16_t SQInt16;
+typedef int32_t SQInt32;
+typedef int64_t SQInt64;
+typedef uint32_t SQUInt32;
+typedef uint64_t SQUInt64;
 #endif
 
+//not a great name.. here for transitionary period
+typedef SQUInt32 SQUnsignedInteger32;
+
+//should be 64bits on 64bits processors, to take advantage of bigger ints
+#ifdef _SQ64
+typedef SQInt64 SQInteger; 
+typedef SQUInt64 SQUnsignedInteger; 
+#else
+typedef SQInt32 SQInteger; 
+typedef SQUInt32 SQUnsignedInteger; 
+#endif
+
+//huh? I dont follow this. any of these cases should bump the size up to 64
+//#if defined(SQUSEDOUBLE) && !defined(_SQ64) || !defined(SQUSEDOUBLE) && defined(_SQ64)
+#if defined(SQUSEDOUBLE) || defined(_SQ64) || defined(_SQ_NO_64)
+typedef SQInt64 SQRawObjectVal;
+#define SQ_OBJECT_RAWINIT() { _unVal.raw = 0; }
+#else
+typedef SQInt32 SQRawObjectVal;;
+#define SQ_OBJECT_RAWINIT()
+#endif
+
+#if defined(_SQ64) || defined(_SQ_NO_64)
+typedef SQInt64 SQHash; //should be the same size as a pointer
+#else
+typedef SQInt32 SQHash; //should be the same size as a pointer
+#endif
 
 #ifdef SQUSEDOUBLE
 typedef double SQFloat;
 #else
 typedef float SQFloat;
-#endif
-
-#if defined(SQUSEDOUBLE) && !defined(_SQ64) || !defined(SQUSEDOUBLE) && defined(_SQ64)
-#ifdef _MSC_VER
-typedef __int64 SQRawObjectVal; //must be 64bits
-#else
-typedef long long SQRawObjectVal; //must be 64bits
-#endif
-#define SQ_OBJECT_RAWINIT() { _unVal.raw = 0; }
-#else
-typedef SQUnsignedInteger SQRawObjectVal; //is 32 bits on 32 bits builds and 64 bits otherwise
-#define SQ_OBJECT_RAWINIT()
 #endif
 
 #ifndef SQ_ALIGNMENT // SQ_ALIGNMENT shall be less than or equal to SQ_MALLOC alignments, and its value shall be power of 2.
@@ -144,3 +154,5 @@ typedef char SQChar;
 #else
 #define _PRINT_INT_FMT _SC("%d")
 #endif
+
+#define SQ_TYPE_TAG_AS_USER_POINTER(TAG) ((SQUserPointer)((char *)0 + (TAG)))
